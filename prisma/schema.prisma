@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Entry {
+  id        String   @id @default(cuid())
+  takenAt   DateTime @db.Timestamptz(6)
+  weight    Float
+  unit      String   @default("lbs")
+  notes     String?
+  frontUrl     String?
+  backUrl      String?
+  leftSideUrl  String?
+  rightSideUrl String?
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([takenAt])
+}
