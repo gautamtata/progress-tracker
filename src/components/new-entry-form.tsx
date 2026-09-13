@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Camera, Images, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -216,22 +217,53 @@ function PhotoSlot({
   file: File | null;
   onChange: (f: File | null) => void;
 }) {
-  const preview = file ? URL.createObjectURL(file) : null;
+  const cameraRef = useRef<HTMLInputElement>(null);
+  const libraryRef = useRef<HTMLInputElement>(null);
+  const preview = useMemo(() => (file ? URL.createObjectURL(file) : null), [file]);
+  useEffect(() => {
+    if (!preview) return;
+    return () => URL.revokeObjectURL(preview);
+  }, [preview]);
+
+  function pick(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0] ?? null;
+    // reset so choosing the same file again still fires onChange
+    e.target.value = "";
+    if (f) onChange(f);
+  }
+
+  function clear() {
+    onChange(null);
+    if (cameraRef.current) cameraRef.current.value = "";
+    if (libraryRef.current) libraryRef.current.value = "";
+  }
+
   return (
-    <label
-      className={`group relative aspect-[3/4] rounded-md border-2 border-dashed cursor-pointer overflow-hidden transition-all ${
+    <div
+      className={`group relative aspect-[3/4] rounded-md border-2 border-dashed overflow-hidden transition-all ${
         file
           ? "border-primary/60"
           : "border-border hover:border-primary/40 hover:bg-foreground/[0.02]"
       }`}
     >
       <input
+        ref={cameraRef}
         type="file"
         accept="image/*"
         capture="environment"
-        onChange={(e) => onChange(e.target.files?.[0] ?? null)}
-        className="absolute inset-0 opacity-0 cursor-pointer"
+        onChange={pick}
+        className="hidden"
+        aria-label={`${label} — take photo`}
       />
+      <input
+        ref={libraryRef}
+        type="file"
+        accept="image/*"
+        onChange={pick}
+        className="hidden"
+        aria-label={`${label} — choose from library`}
+      />
+
       {preview && (
         <img
           src={preview}
@@ -239,23 +271,57 @@ function PhotoSlot({
           className="absolute inset-0 w-full h-full object-cover"
         />
       )}
+
       <div
-        className={`absolute inset-0 flex flex-col justify-between p-2.5 ${
+        className={`absolute inset-0 flex flex-col p-2.5 ${
           preview ? "bg-gradient-to-t from-background/80 via-transparent to-transparent" : ""
         }`}
       >
-        <span className="text-eyebrow text-[0.6rem]">{label}</span>
+        <div className="flex items-start justify-between">
+          <span className="text-eyebrow text-[0.6rem]">{label}</span>
+          {preview && (
+            <button
+              type="button"
+              onClick={clear}
+              aria-label={`Remove ${label} photo`}
+              className="-mt-1 -mr-1 h-7 w-7 rounded-full bg-background/80 backdrop-blur border border-border text-foreground flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground hover:border-destructive transition-colors"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+
         {!preview && (
-          <span className="font-mono text-[0.65rem] text-muted-foreground self-center my-auto">
-            +
-          </span>
+          <div className="flex-1 flex flex-col items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => cameraRef.current?.click()}
+              className="flex items-center gap-1.5 h-8 px-3 rounded-full border border-border font-mono text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground hover:border-primary/60 transition-colors"
+            >
+              <Camera className="h-3.5 w-3.5" />
+              Camera
+            </button>
+            <button
+              type="button"
+              onClick={() => libraryRef.current?.click()}
+              className="flex items-center gap-1.5 h-8 px-3 rounded-full border border-border font-mono text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground hover:border-primary/60 transition-colors"
+            >
+              <Images className="h-3.5 w-3.5" />
+              Library
+            </button>
+          </div>
         )}
+
         {preview && (
-          <span className="font-mono text-[0.6rem] text-foreground self-end">
-            ✓
-          </span>
+          <button
+            type="button"
+            onClick={() => libraryRef.current?.click()}
+            className="mt-auto self-end font-mono text-[0.6rem] uppercase tracking-[0.18em] text-foreground/80 hover:text-foreground"
+          >
+            Replace
+          </button>
         )}
       </div>
-    </label>
+    </div>
   );
 }
