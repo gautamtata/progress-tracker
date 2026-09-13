@@ -38,6 +38,7 @@ Live at **https://progress.gautamtata.com**. Repo at `~/Documents/progress-track
 - [ ] **Photo privacy upgrade** — currently Blob URLs are public-but-unguessable. Switch to server-proxied images via `/api/photo/[id]?pose=front` so even leaked URLs require the auth cookie.
 - [ ] **Compare view** — side-by-side: pick two dates, see all 4 poses overlaid or paired.
 - [ ] **Local backup** — script/route to mirror the DB + Blob to local disk on demand (since you wanted the option of keeping things off-cloud eventually).
+- [ ] **3D body scan + body fat estimate** (Fitness AI–style). Pipeline: fit SMPL-X to the four pose photos (or a short turnaround video) → keep the ~10 shape betas per entry → render mesh as a 3D avatar → regress body fat % from betas / mesh circumferences (Navy formula or a trained regressor). Candidate models: SAM 3D Body (single image, best accuracy), GVHMR / SMPLest-X (video), NVIDIA GEM-X (Apache 2.0). Multi-view: optimize one set of betas across all frames. Needs a GPU, so run on Modal / Replicate or locally, not in a Vercel function. Store betas per entry → body-shape trend chart next to weight. Treat body fat % as repeatable-not-accurate; the trend is the signal. First experiment: run SAM 3D Body on existing front/side photos and eyeball waist/chest on the mesh.
 
 ## Operational notes
 
