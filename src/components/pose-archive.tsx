@@ -1,5 +1,6 @@
 "use client";
 
+import { photoSrc } from "@/lib/photo";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -99,7 +100,8 @@ function PoseColumn({
                     className="block relative aspect-[3/4] w-full bg-muted/40 rounded-md overflow-hidden group"
                   >
                     <Image
-                      src={p.url}
+                      src={photoSrc(p.url)}
+                      unoptimized
                       alt={`${label} on ${fmt(p.date, "MMM d, yyyy")}`}
                       fill
                       sizes="(max-width: 768px) 100vw, 350px"

@@ -1,5 +1,6 @@
 "use client";
 
+import { photoSrc } from "@/lib/photo";
 import Link from "next/link";
 import Image from "next/image";
 import { fmt } from "@/lib/time";
@@ -52,7 +53,8 @@ export function EntryList({ entries }: { entries: Entry[] }) {
                       className="relative h-10 w-10 rounded-full ring-2 ring-card overflow-hidden bg-muted"
                     >
                       <Image
-                        src={url}
+                        src={photoSrc(url)}
+                        unoptimized
                         alt=""
                         fill
                         sizes="40px"

@@ -1,5 +1,6 @@
 "use client";
 
+import { photoSrc } from "@/lib/photo";
 import Image from "next/image";
 import { useState } from "react";
 import {
@@ -30,7 +31,8 @@ export function EntryCarousel({ photos }: { photos: Photo[] }) {
             <CarouselItem key={`${p.pose}-${i}`}>
               <div className="relative aspect-[3/4] w-full bg-muted/40 rounded-md overflow-hidden">
                 <Image
-                  src={p.url}
+                  src={photoSrc(p.url)}
+                  unoptimized
                   alt={p.pose}
                   fill
                   sizes="(max-width: 768px) 100vw, 700px"

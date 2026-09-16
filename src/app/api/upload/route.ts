@@ -15,7 +15,7 @@ export async function POST(req: Request) {
   const ext = file.name.split(".").pop() || "jpg";
   const key = `entries/${Date.now()}-${pose}-${crypto.randomUUID()}.${ext}`;
   const blob = await put(key, file, {
-    access: "public",
+    access: "private",
     contentType: file.type || undefined,
   });
   return NextResponse.json({ ok: true, url: blob.url });
