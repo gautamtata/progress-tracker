@@ -25,6 +25,7 @@ Live at **https://progress.gautamtata.com**. Repo at `~/Documents/progress-track
 - [x] Per-pose Archive: 4 carousels (Front / Back / Left side / Right side), oldest → newest
 - [x] Date + time + weight overlays on every photo, photos link to entry detail
 - [x] Entry detail page with photo carousel, pull-quote notes, two-tap delete
+- [x] Photo privacy: Blob store is private; images stream through authed `/api/photo?u=` (cookie required even with a leaked URL)
 - [x] Timestamps: stored UTC `TIMESTAMPTZ`, rendered in `America/Los_Angeles`
 - [x] Vercel deploy + custom domain `progress.gautamtata.com` (had to PATCH project to set `framework: "nextjs"` — created empty in dashboard meant auto-detect never ran)
 
@@ -35,7 +36,6 @@ Live at **https://progress.gautamtata.com**. Repo at `~/Documents/progress-track
 - [ ] **PWA install** — add manifest + icons so "Add to Home Screen" gives a real app icon and standalone display.
 - [ ] **Measurements beyond weight** — body fat %, waist, arms, etc. Schema migration + new chart per metric (or stacked).
 - [ ] **Export** — download all photos + CSV of weights as a zip backup.
-- [ ] **Photo privacy upgrade** — currently Blob URLs are public-but-unguessable. Switch to server-proxied images via `/api/photo/[id]?pose=front` so even leaked URLs require the auth cookie.
 - [ ] **Compare view** — side-by-side: pick two dates, see all 4 poses overlaid or paired.
 - [ ] **Local backup** — script/route to mirror the DB + Blob to local disk on demand (since you wanted the option of keeping things off-cloud eventually).
 - [ ] **3D body scan + body fat estimate** (Fitness AI–style). Pipeline: fit SMPL-X to the four pose photos (or a short turnaround video) → keep the ~10 shape betas per entry → render mesh as a 3D avatar → regress body fat % from betas / mesh circumferences (Navy formula or a trained regressor). Candidate models: SAM 3D Body (single image, best accuracy), GVHMR / SMPLest-X (video), NVIDIA GEM-X (Apache 2.0). Multi-view: optimize one set of betas across all frames. Needs a GPU, so run on Modal / Replicate or locally, not in a Vercel function. Store betas per entry → body-shape trend chart next to weight. Treat body fat % as repeatable-not-accurate; the trend is the signal. First experiment: run SAM 3D Body on existing front/side photos and eyeball waist/chest on the mesh.
@@ -50,6 +50,6 @@ Live at **https://progress.gautamtata.com**. Repo at `~/Documents/progress-track
 
 ## Known quirks
 
-- Vercel Blob URLs are public (anyone with the URL can view). Acceptable for personal use; see "Photo privacy upgrade" above for the fix.
+- Blob URLs are private and unusable without the auth cookie. Images are served `unoptimized` through `/api/photo`, so thumbnails load the full photo; add server-side resizing if that gets slow.
 - Vercel Deployment Protection is **off** for this project so the password gate is the only auth layer.
 - Side photos: "Left side" / "Right side" in the schema means the side of *your body* you're showing the camera (whichever convention you adopted on day 1 — stay consistent).
